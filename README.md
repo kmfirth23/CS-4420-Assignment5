@@ -5,7 +5,7 @@ Author: Kennedy Firth
 
 Source Code: [Assignment5.c](Assignment5.c)
 
-Written Report: [Assignment 5 PDF]('Assignment 5.pdf')
+Written Report: [Assignment 5 PDF](<Assignment 5.pdf>)
 
 Input from assignment description: [input.txt](input.txt)
 
