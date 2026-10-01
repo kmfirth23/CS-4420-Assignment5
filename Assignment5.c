@@ -109,15 +109,17 @@ Task* storeFileContents(char *file_name, int *num_processes)
     //Check the file opened
     if(fp == NULL) {
         printf("Not able to open the file.");
-        return ta;
+        free(ta);
+        return NULL;
     }
 
     // Store the content of the file into the task array
     int p, a, b; 
     if(fscanf(fp, "%d", num_processes) != 1)
     {
-        printf("Invalid file format");
-        return ta;
+        printf("Invalid file format\n");
+        free(ta);
+        return NULL;
     }
 
     printf("%d\n", *num_processes); 
@@ -195,7 +197,7 @@ void fcfs(Task* task_array, int num_processes)
         else if(current_task == NULL && isEmpty(&ready_queue))
         {
             //no task is running
-            printf("Time %d: ,idle\n", time);
+            printf("Time %d: idle\n", time);
             time++;
             continue;
         }
@@ -285,7 +287,7 @@ int* sjf(Task* task_array, int num_processes)
         else if(current_task == NULL && isEmpty(&ready_queue))
         {
             //no task is running
-            printf("Time %d: ,idle\n", time);
+            printf("Time %d: idle\n", time);
             time++;
             continue;
         }
@@ -298,7 +300,16 @@ int* sjf(Task* task_array, int num_processes)
             completed_processes++;
             current_task->end_time = time;
             printf("Task %d ended, Time: %d\n", current_task->pid, time);
-            finish_order[completed_processes - 1] = current_task->pid;
+            //record the index of the finished task in the finish_order array
+            for(size_t i = 0; i < num_processes; i++)
+            {
+                if(current_task == &task_array[i])
+                {
+                    finish_order[completed_processes - 1] = i;
+                    break;
+                }
+            }
+            //finish_order[completed_processes - 1] = current_task->pid;
             current_task = NULL;
         }
 
@@ -351,7 +362,7 @@ void rr(Task* task_array, int num_processes, int time_quantum)
         else if(current_task == NULL && isEmpty(&ready_queue))
         {
             //no task is running
-            printf("Time %d: ,idle\n", time);
+            printf("Time %d: idle\n", time);
             time++;
             continue;
         }
@@ -438,6 +449,12 @@ int main(int argc, char *argv[]) {
     //Store data from the file into the task array
     Task* t = storeFileContents(file_name, &num_processes);
 
+    //check if the file contents were stored
+    if(t == NULL)
+    {
+        printf("Nothing to process\n");
+        return 1;
+    }
     //Sort the task by arrival time (only needed if they are not given in order of arrival time, unknown for this assignment)
     qsort(t, num_processes, sizeof(Task), comp);
 
@@ -471,6 +488,7 @@ int main(int argc, char *argv[]) {
     //Print statistical information
     int total_waiting_time = 0; 
 
+    printf("\n");
     printf("%s\n", scheduling_algorithm);
 
     printf("PID   Arrival Time   Start Time   End Time   Running Time   Waiting Time\n");
